@@ -1,4 +1,4 @@
-package src; // bspw. dein Package-Name
+package parser;
 
 import java.io.IOException;
 import java.io.InputStream;

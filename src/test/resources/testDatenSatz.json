@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "date": "2026-09-17",
+    "version": "5.3.0"
+  },
+  "data": {
+    "10E": {
+      "baseSetSize": 383,
+      "block": "Core Set",
+      "name": "Tenth Edition",
+      "cards": [
+        {
+          "uuid": "b126b3bf-7890-5858-bf51-4d3848c5fc4c",
+          "name": "Ancestor's Chosen",
+          "manaCost": "{5}{W}{W}",
+          "convertedManaCost": 7.0,
+          "type": "Creature — Human Cleric",
+          "text": "First strike\nWhen Ancestor's Chosen enters the battlefield, you gain 1 life for each card in your graveyard.",
+          "flavorText": "It is the will of all, and my hand that executes it.",
+          "artist": "Pete Venters",
+          "number": "1",
+          "rarity": "uncommon",
+          "colors": ["W"],
+          "colorIdentity": ["W"],
+          "finishes": ["nonfoil"],
+          "foreignData": [
+            {
+              "language": "German",
+              "name": "Ausgewählter der Ahnfrau",
+              "text": "Erstschlag (Diese Kreatur fügt Kampfschaden vor Kreaturen ohne Erstschlag zu.)\nWenn der Ausgewählte der Ahnfrau ins Spiel kommt, erhältst du 1 Lebenspunkt für jede Karte in deinem Friedhof dazu.",
+              "type": "Kreatur — Mensch, Kleriker",
+              "flavorText": "„Es ist der Wille aller, und meine Hand, die ihn ausführt.\"",
+              "multiverseId": 148411
+            },
+            {
+              "language": "French",
+              "name": "Élu de l'Ancêtre",
+              "text": "Initiative\nQuand l'Élu de l'Ancêtre arrive en jeu, vous gagnez 1 point de vie pour chaque carte dans votre cimetière.",
+              "type": "Créature : humain et clerc",
+              "multiverseId": 149934
+            },
+            {
+              "language": "Japanese",
+              "name": "祖神に選ばれし者",
+              "text": "先制攻撃\n祖神に選ばれし者が場に出たとき、あなたはあなたの墓地にあるカード１枚につき１点のライフを得る。",
+              "type": "クリーチャー — 人間・クレリック",
+              "multiverseId": 148028
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

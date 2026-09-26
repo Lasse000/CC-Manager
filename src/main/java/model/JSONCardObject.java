@@ -64,6 +64,10 @@ public class JSONCardObject {
     public List<ForeignCardData> getForeignData() { return foreignData; }
     public void setForeignData(List<ForeignCardData> foreignData) { this.foreignData = foreignData; }
 
+    public String getRarity() { return rarity; }
+    public void setRarity(String rarity) { this.rarity = rarity; }
+
+
     @Override
     public String toString() {
         return "CardObject{" +
