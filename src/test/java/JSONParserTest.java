@@ -3,6 +3,7 @@ import model.JSONCardObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import parser.JSONParser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,9 +14,7 @@ public class JSONParserTest {
 
     @Before
     public void setUp() {
-        // Wir übergeben dem Parser gezielt unsere Test-Datei unter src/test/resources/
-        File testDatei = new File("src/test/resources/testDatenSatz.json");
-        parser = new JSONParser(testDatei);
+        parser = new JSONParser();
     }
 
     @Test
