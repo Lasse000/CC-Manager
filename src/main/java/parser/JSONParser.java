@@ -10,14 +10,14 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
 
 public class JSONParser {
 
-    private final File rohDaten;
+    private final File rohDaten = new File("src/test/resources/testDatenSatz.json");
     private ArrayList<SetObject> setObjects = new ArrayList<>();
 
-    public JSONParser(File testDatei) {
-        this.rohDaten = new File("src/test/resources/testDatenSatz.json");
+    public JSONParser() {
     }
 
     public ArrayList<JSONCardObject> datenAuslesenJSONCardObject() {
@@ -92,9 +92,29 @@ public class JSONParser {
         card.setArtist(jo.optString("artist", null));
         card.setRarity(jo.optString("rarity", null));
         card.setConvertedManaCost(jo.optDouble("convertedManaCost", 0.0));
-
         // Den übergebenen Set-Code direkt setzen!
         card.setSetCode(setCode);
+        card.setCardMarket_id(jo.optString("cardmarket_id", null));
+        card.setSetNumber(jo.optString("number", null));
+        card.setSryfallID(jo.optString("scryfallId", null));
+        card.setTypeLine(jo.optString("typeLine", null));
+        card.setPower(jo.optString("power", null));
+        card.setToughness(jo.optString("toughness", null));
+        card.setKeywords(parseStringList(jo, "keywords"));
+        card.setLayout(jo.optString("layout", null));
+        card.setDefense(jo.optIntegerObject("defense", null));
+        card.setDefense(jo.optIntegerObject("loyalty", null));
+        card.setProducedMana(parseStringList(jo, "producedMana"));
+        card.setBorder_color(jo.optString("borderColor", null));
+        card.setEdhRank(jo.optIntegerObject("edhrecRank"));
+        card.setFlavorName(jo.optString("flavorName", null));
+        card.setFullArt(jo.optBoolean("fullArt"));
+        card.setGames(parseStringList(jo, "games"));
+        card.setPromo(jo.optBoolean("promo"));
+        card.setReprint(jo.optBoolean("reprint"));
+        card.setEdhRecSaltiness(jo.optString("edhRecSaltiness"));
+
+
 
         // --- Foreign Cards (Sprachen) auslesen ---
         if (jo.has("foreignData") && !jo.isNull("foreignData")) {
@@ -123,5 +143,21 @@ public class JSONParser {
         }
 
         return card;
+    }
+
+    public boolean fileExists() {
+        return this.rohDaten != null && this.rohDaten.exists();
+    }
+
+    private List<String> parseStringList(JSONObject jo, String key) {
+        if (jo.has(key) && !jo.isNull(key)) {
+            JSONArray array = jo.getJSONArray(key);
+            List<String> list = new ArrayList<>();
+            for (int i = 0; i < array.length(); i++) {
+                list.add(array.getString(i));
+            }
+            return list;
+        }
+        return null;
     }
 }
