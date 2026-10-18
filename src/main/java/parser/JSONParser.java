@@ -20,6 +20,22 @@ public class JSONParser {
     public JSONParser() {
     }
 
+    public ArrayList<SetObject> getSetObjects(){
+        return this.setObjects;
+    }
+
+    public ArrayList<String> getRarities(){
+        ArrayList<String> raritiesList = new ArrayList<>();
+        for (JSONCardObject card : datenAuslesenJSONCardObject()){
+            for(String rarity : raritiesList){
+                if(!card.getRarity().equals(rarity)){
+                    raritiesList.add(card.getRarity());
+                }
+            }
+        }
+        return raritiesList;
+    }
+
     public ArrayList<JSONCardObject> datenAuslesenJSONCardObject() {
         ArrayList<JSONCardObject> jsonCardObjects = new ArrayList<>();
 
@@ -49,9 +65,7 @@ public class JSONParser {
                     set.setName(setJsonObject.optString("name", null));
                     set.setBaseSetSize(setJsonObject.optInt("baseSetSize", 0));
                     set.setBlock(setJsonObject.optString("block", null));
-                    set.setReleaseDate(setJsonObject.optString("releaseDate", null)); // falls im JSON vorhanden
-
-                    setObjects.add(set);
+                    set.setReleaseDate(setJsonObject.optString("releaseDate", null)); // falls im JSON vorhandents.add(set);
 
                     if (setJsonObject.has("cards")) {
                         JSONArray cardsArray = setJsonObject.getJSONArray("cards");
@@ -92,7 +106,6 @@ public class JSONParser {
         card.setArtist(jo.optString("artist", null));
         card.setRarity(jo.optString("rarity", null));
         card.setConvertedManaCost(jo.optDouble("convertedManaCost", 0.0));
-        // Den übergebenen Set-Code direkt setzen!
         card.setSetCode(setCode);
         card.setCardMarket_id(jo.optString("cardmarket_id", null));
         card.setSetNumber(jo.optString("number", null));
