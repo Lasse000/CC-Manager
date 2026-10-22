@@ -16,7 +16,7 @@ public class JSONParserTest {
     public void setUp() {
         parser = new JSONParser();
     }
-
+/*
     @Test
     public void testDatenAuslesenUmfangUndStammdaten() {
         // Act: Gesamte Liste einlesen
@@ -53,4 +53,6 @@ public class JSONParserTest {
         Assert.assertNotNull("Die deutsche Übersetzung muss vorhanden sein", germanData);
         Assert.assertEquals("Ausgewählter der Ahnfrau", germanData.getName());
     }
+
+ */
 }

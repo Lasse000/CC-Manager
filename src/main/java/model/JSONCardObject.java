@@ -66,8 +66,8 @@ public class JSONCardObject {
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
-    public String getoracleText() { return oracleText; }
-    public void setText(String oracleText) { this.oracleText = oracleText; }
+    public String getOracleText() { return oracleText; }
+    public void setOracleText(String oracleText) { this.oracleText = oracleText; }
 
     public String getFlavorText() { return flavorText; }
     public void setFlavorText(String flavorText) { this.flavorText = flavorText; }

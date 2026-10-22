@@ -18,7 +18,7 @@ public class RawDataFetcher {
         this.url = "https://mtgjson.com/api/v5/AllPrintings.json";
 
         // Relativer Pfad im Projekt (erzeugt data/AllPrintings.json automatisch)
-        this.targetFilePath = "data/AllPrintings.json";
+        this.targetFilePath = "src/test/resources/AllPrintings.json";
     }
 
     public void fetchData() {

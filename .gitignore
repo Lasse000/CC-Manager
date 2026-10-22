@@ -1,5 +1,6 @@
 # Sensible Konfigurationen
 database.ini
+/src/test/resources/AllPrintings.json
 *.ini
 
 ### IntelliJ IDEA ###

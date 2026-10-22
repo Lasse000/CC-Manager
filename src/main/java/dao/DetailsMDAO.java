@@ -1,122 +1,114 @@
 package dao;
 
 import model.JSONCardObject;
-import parser.JSONParser;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class DetailsMDAO {
 
-    DBConnection dbConnection = new DBConnection();
-    private ArrayList<JSONCardObject> cardlist;
+    private final DBConnection dbConnection = new DBConnection();
 
-    public DetailsMDAO(ArrayList<JSONCardObject> cardlist) {
-        this.cardlist = cardlist;
+    public DetailsMDAO() {
     }
 
-    public ArrayList<JSONCardObject> getKartenListe() {
-        JSONParser jsonParser = new JSONParser();
-        this.cardlist = jsonParser.datenAuslesenJSONCardObject();
-        return this.cardlist;
-    }
+    public void insertDetailsM(List<JSONCardObject> cardList, Map<String, Integer> cardUuidToNrMap) {
 
-    public Map<String, Integer> insertDetailsM(List<JSONCardObject> cardList) {
-        Map<String, Integer> detailsMIdToMap = new HashMap<>();
-
-        String sql = "INSERT INTO details_m (scryfall_id, type_line, oracle_text, cmc, power, toughness, color, color_identity, keywords, layout, defense, loyalty, produced_mana, artist, border_color, finishes, edhrec_rank, flavor_name, flavor_text, full_art, games, promo, promo_type, reprint, edhrecsaltiness) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+        String sql = "INSERT INTO details_m (cards_nr, scryfall_id, type_line, oracle_text, cmc, power, toughness, " +
+                "color, color_identity, keywords, layout, defense, loyalty, produced_mana, artist, " +
+                "border_color, finishes, edhrec_rank, flavor_name, flavor_text, full_art, games, promo, " +
+                "promo_type, reprint, edhrecsaltiness) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                "ON CONFLICT (cards_nr) DO UPDATE SET " +
+                "oracle_text = EXCLUDED.oracle_text, " +
+                "type_line = EXCLUDED.type_line, " +
+                "cmc = EXCLUDED.cmc, " +
+                "artist = EXCLUDED.artist, " +
+                "edhrec_rank = EXCLUDED.edhrec_rank";
 
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             for (JSONCardObject card : cardList) {
-                // 1. scryfall_id
-                stmt.setString(1, card.getSryfallID());
-                // 2. type_line
-                stmt.setString(2, card.getTypeLine());
-                // 3. oracle_text
-                stmt.setString(3, card.getoracleText());
 
-                // 4. cmc
+                Integer cardsNr = cardUuidToNrMap.get(card.getUuid());
+                if (cardsNr == null) {
+                    continue;
+                }
+
+                stmt.setInt(1, cardsNr);
+                stmt.setString(2, card.getSryfallID());
+                stmt.setString(3, card.getTypeLine());
+                stmt.setString(4, card.getOracleText());
+
                 if (card.getConvertedManaCost() != null) {
-                    stmt.setDouble(4, card.getConvertedManaCost());
+                    stmt.setDouble(5, card.getConvertedManaCost());
                 } else {
-                    stmt.setNull(4, Types.DOUBLE);
+                    stmt.setNull(5, Types.DOUBLE);
                 }
 
-                // 5. power
-                stmt.setString(5, card.getPower());
-                // 6. toughness
-                stmt.setString(6, card.getToughness());
+                stmt.setString(6, card.getPower());
+                stmt.setString(7, card.getToughness());
 
-                // Arrays (mit Hilfsmethode)
-                setSqlArray(conn, stmt, 7, card.getColors());          // 7. color
-                setSqlArray(conn, stmt, 8, card.getColorIdentity());  // 8. color_identity
-                setSqlArray(conn, stmt, 9, card.getKeywords());       // 9. keywords
+                setSqlArray(conn, stmt, 8, card.getColors(), "VARCHAR");
+                setSqlArray(conn, stmt, 9, card.getColorIdentity(), "VARCHAR");
+                setSqlArray(conn, stmt, 10, card.getKeywords(), "VARCHAR");
 
-                // 10. layout
-                stmt.setString(10, card.getLayout());
+                if (card.getLayout() != null) {
+                    stmt.setString(11, card.getLayout());
+                } else {
+                    stmt.setNull(11, Types.OTHER);
+                }
 
-                // 11. defense
                 if (card.getDefense() != null) {
-                    stmt.setInt(11, card.getDefense());
-                } else {
-                    stmt.setNull(11, Types.INTEGER);
-                }
-
-                // 12. loyalty
-                if (card.getLoyalty() != null) {
-                    stmt.setInt(12, card.getLoyalty());
+                    stmt.setInt(12, card.getDefense());
                 } else {
                     stmt.setNull(12, Types.INTEGER);
                 }
 
-                // 13. produced_mana
-                setSqlArray(conn, stmt, 13, card.getProducedMana());
-
-                // 14. artist
-                stmt.setString(14, card.getArtist());
-                // 15. border_color
-                stmt.setString(15, card.getBorder_color());
-
-                // 16. finishes
-                setSqlArray(conn, stmt, 16, card.getFinishes());
-
-                // 17. edhrec_rank
-                if (card.getEdhRank() != null) {
-                    stmt.setInt(17, card.getEdhRank());
+                if (card.getLoyalty() != null) {
+                    stmt.setInt(13, card.getLoyalty());
                 } else {
-                    stmt.setNull(17, Types.INTEGER);
+                    stmt.setNull(13, Types.INTEGER);
                 }
 
-                // 18. flavor_name
-                stmt.setString(18, card.getFlavorName());
-                // 19. flavor_text
-                stmt.setString(19, card.getFlavorText());
-                // 20. full_art
-                stmt.setBoolean(20, card.isFullArt());
+                setSqlArray(conn, stmt, 14, card.getProducedMana(), "VARCHAR");
+                stmt.setString(15, card.getArtist());
+                if (card.getBorder_color() != null) {
+                    stmt.setString(16, card.getBorder_color());
+                } else {
+                    stmt.setNull(16, Types.OTHER);
+                }
+                setSqlArray(conn, stmt, 17, card.getFinishes(), "VARCHAR");
+                if (card.getEdhRank() != null) {
+                    stmt.setInt(18, card.getEdhRank());
+                } else {
+                    stmt.setNull(18, Types.INTEGER);
+                }
 
-                // 21. games
-                setSqlArray(conn, stmt, 21, card.getGames());
+                stmt.setString(19, card.getFlavorName());
+                stmt.setString(20, card.getFlavorText());
+                stmt.setBoolean(21, card.isFullArt());
 
-                // 22. promo
-                stmt.setBoolean(22, card.isPromo());
-
-                // 23. promo_type (nicht in JSONCardObject enthalten -> null)
-                stmt.setNull(23, Types.VARCHAR);
-
-                // 24. reprint
-                stmt.setBoolean(24, card.isReprint());
-
-                // 25. edhrecsaltiness
-                stmt.setString(25, card.getEdhRecSaltiness());
+// 22. games (Typ in DB jetzt VARCHAR[])
+                setSqlArray(conn, stmt, 22, card.getGames(), "VARCHAR");
+                stmt.setBoolean(23, card.isPromo());
+                stmt.setNull(24, Types.VARCHAR);
+                stmt.setBoolean(25, card.isReprint());
+                // 26. edhrecsaltiness (Konvertierung von String zu Float/Double mit NULL-Check)
+                if (card.getEdhRecSaltiness() != null && !card.getEdhRecSaltiness().isBlank()) {
+                    try {
+                        stmt.setFloat(26, Float.parseFloat(card.getEdhRecSaltiness()));
+                    } catch (NumberFormatException e) {
+                        stmt.setNull(26, Types.FLOAT);
+                    }
+                } else {
+                    stmt.setNull(26, Types.FLOAT);
+                }
 
                 stmt.addBatch();
             }
@@ -126,17 +118,23 @@ public class DetailsMDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return detailsMIdToMap;
     }
 
-    /**
-     * Hilfsmethode zum Konvertieren einer List<String> in ein PostgreSQL SQL-Array.
-     */
     private void setSqlArray(Connection conn, PreparedStatement stmt, int parameterIndex, List<String> list) throws SQLException {
         if (list != null && !list.isEmpty()) {
             String[] array = list.toArray(new String[0]);
             java.sql.Array sqlArray = conn.createArrayOf("VARCHAR", array);
+            stmt.setArray(parameterIndex, sqlArray);
+        } else {
+            stmt.setNull(parameterIndex, Types.ARRAY);
+        }
+    }
+
+    private void setSqlArray(Connection conn, PreparedStatement stmt, int parameterIndex, List<String> list, String typeName) throws SQLException {
+        if (list != null && !list.isEmpty()) {
+            String[] array = list.toArray(new String[0]);
+            // Übergibt den exakten DB-Typnamen (z.B. "color" oder "VARCHAR")
+            java.sql.Array sqlArray = conn.createArrayOf(typeName, array);
             stmt.setArray(parameterIndex, sqlArray);
         } else {
             stmt.setNull(parameterIndex, Types.ARRAY);

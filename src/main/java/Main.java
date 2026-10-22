@@ -1,19 +1,21 @@
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import dao.ImporterCoordinator;
 import java.sql.SQLException;
-import java.sql.Connection;
 
-public class Main{
-    public static void main (String[] args) throws SQLException {
-        /*DBConnection db = new DBConnection();
-        Connection conn = db.getConnection();
-        src.RawDataFetcher rawDataFetcher = new src.RawDataFetcher();
-        rawDataFetcher.fetchData();
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("=== Starte MTG Datenbank-Import ===");
 
+        ImporterCoordinator coordinator = new ImporterCoordinator();
 
-         */
-        System.out.println("Hello World");
-
+        try {
+            coordinator.startFullImport();
+            System.out.println("=== Import erfolgreich abgeschlossen! ===");
+        } catch (SQLException e) {
+            System.err.println("SQL-Fehler beim Importieren:");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Unerwarteter Fehler:");
+            e.printStackTrace();
+        }
     }
 }
-
