@@ -17,7 +17,8 @@ public class ImporterCoordinator {
     public void startFullImport() throws SQLException {
         if (!jsonParser.fileExists()) {
             System.out.println("Rohdaten nicht gefunden. Starte Download via RawDataFetcher...");
-            rawDataFetcher.fetchData();
+            rawDataFetcher.fetchData(); // hier schauhen, ob die meta Daten aktuell sind
+            rawDataFetcher.fetchpriceData();
         }
         importJSONToDB();
     }
@@ -47,6 +48,11 @@ public class ImporterCoordinator {
 
             System.out.println("Speichere Kartendetails in 'details_m'...");
             detailsMDAO.insertDetailsM(cardList, cardUuidToNrMap);
+
+            ForeignCardsDAO foreignCardsDAO = new ForeignCardsDAO();
+// ...
+            System.out.println("Speichere Übersetzungen in 'foreign_cards'...");
+            foreignCardsDAO.insertForeignCards(cardList, cardUuidToNrMap);
 
             long endTime = System.currentTimeMillis();
             System.out.println("Import erfolgreich abgeschlossen in " + ((endTime - startTime) / 1000.0) + " Sekunden!");

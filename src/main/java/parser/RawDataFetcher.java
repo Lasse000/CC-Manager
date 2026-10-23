@@ -12,10 +12,15 @@ public class RawDataFetcher {
 
     private String url;
     private String targetFilePath;
+    private String priceUrl;
+    private String priceTargetFilePath;
 
     public RawDataFetcher() {
         // Link zu allen Kartendrucken inkl. Fremdsprachen (foreignData)
         this.url = "https://mtgjson.com/api/v5/AllPrintings.json";
+        this.priceUrl = "https://mtgjson.com/api/v5/AllPricesToday.json";
+        this.priceTargetFilePath = "src/test/resources/AllPricesToday.json";
+
 
         // Relativer Pfad im Projekt (erzeugt data/AllPrintings.json automatisch)
         this.targetFilePath = "src/test/resources/AllPrintings.json";
@@ -37,6 +42,25 @@ public class RawDataFetcher {
                 System.out.println("Daten erfolgreich heruntergeladen und gespeichert unter: " + destination.toAbsolutePath());
             }
         } catch (IOException e) {
+            System.err.println("Fehler beim Herunterladen der Daten: " + e.getMessage());
+        }
+    }
+
+    public void fetchpriceData(){
+        try{
+            Path destination = Paths.get(priceTargetFilePath);
+
+            if(destination.getParent() != null){
+                Files.createDirectories(destination.getParent());
+            }
+            System.out.println("Lade alle heutigen Preisdaten herunter.");
+
+            try(InputStream in = new URL(priceUrl).openStream()){
+                Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Daten erfolgreich heruntergeladen und gespeichert unter: " + destination.toAbsolutePath());
+            }
+        }
+        catch (IOException e) {
             System.err.println("Fehler beim Herunterladen der Daten: " + e.getMessage());
         }
     }

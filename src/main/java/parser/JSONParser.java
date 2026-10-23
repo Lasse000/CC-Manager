@@ -2,6 +2,7 @@ package parser;
 
 import model.ForeignCardData;
 import model.JSONCardObject;
+import model.PriceObjectModel;
 import model.SetObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,6 +23,7 @@ public class JSONParser {
 
     public JSONParser() {
     }
+
 
     public List<JSONCardObject> datenAuslesenJSONCardObject() {
         List<JSONCardObject> jsonCardObjects = new ArrayList<>();
@@ -115,6 +117,28 @@ public class JSONParser {
             card.setCardMarket_id(identifiers.optString("mcmId", null));
             card.setSryfallID(identifiers.optString("scryfallId", null));
         }
+        if (jo.has("foreignData") && !jo.isNull("foreignData")) {
+            JSONArray fdArray = jo.getJSONArray("foreignData");
+            List<ForeignCardData> foreignList = new ArrayList<>();
+
+            for (int i = 0; i < fdArray.length(); i++) {
+                JSONObject fdJson = fdArray.getJSONObject(i);
+                ForeignCardData fd = new ForeignCardData();
+                fd.setLanguage(fdJson.optString("language", null));
+                fd.setName(fdJson.optString("name", null));
+                fd.setText(fdJson.optString("text", null));
+                fd.setType(fdJson.optString("type", null));
+                fd.setFlavorText(fdJson.optString("flavorText", null));
+
+                if (fdJson.has("multiverseId") && !fdJson.isNull("multiverseId")) {
+                    fd.setMultiverseId(fdJson.getInt("multiverseId"));
+                }
+                fd.setUuid(fdJson.optString("uuid", null));
+
+                foreignList.add(fd);
+            }
+            card.setForeignData(foreignList);
+        }
 
         // String-Listen parsen
         card.setColors(parseStringList(jo, "colors"));
@@ -125,6 +149,13 @@ public class JSONParser {
         card.setGames(parseStringList(jo, "availability")); // In MTGJSON heisst das Array oft "availability"
 
         return card;
+    }
+
+    public PriceObjectModel jsonArrayToPriceObjectModel(JSONObject jo, String cardCode){ //cardCode ist der FK?
+        PriceObjectModel priceObjectModel = new PriceObjectModel();
+
+
+        return priceObjectModel;
     }
 
     private List<String> parseStringList(JSONObject jo, String key) {
