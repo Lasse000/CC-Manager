@@ -1,7 +1,11 @@
 package parser;
 
+import org.json.JSONObject;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,22 +50,39 @@ public class RawDataFetcher {
         }
     }
 
-    public void fetchpriceData(){
-        try{
-            Path destination = Paths.get(priceTargetFilePath);
+    public String fetchOnlineMetaDate() {
+        try {
+            URL url = new URL("https://mtgjson.com/api/v5/Meta.json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0");
 
-            if(destination.getParent() != null){
-                Files.createDirectories(destination.getParent());
+            if (conn.getResponseCode() == 200) {
+                String content = new String(conn.getInputStream().readAllBytes());
+                JSONObject json = new JSONObject(content);
+                if (json.has("data")) {
+                    return json.getJSONObject("data").optString("date", null);
+                }
             }
-            System.out.println("Lade alle heutigen Preisdaten herunter.");
-
-            try(InputStream in = new URL(priceUrl).openStream()){
-                Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Daten erfolgreich heruntergeladen und gespeichert unter: " + destination.toAbsolutePath());
-            }
+        } catch (Exception e) {
+            System.err.println("Fehler beim Abrufen der Meta.json: " + e.getMessage());
         }
-        catch (IOException e) {
-            System.err.println("Fehler beim Herunterladen der Daten: " + e.getMessage());
+        return null;
+    }
+
+    public void fetchpriceData() {
+        try {
+            System.out.println("Lade AllPricesToday.json herunter...");
+            URL url = new URL("https://mtgjson.com/api/v5/AllPricesToday.json");
+            File targetFile = new File("src/test/resources/AllPricesToday.json");
+
+            // Stellt sicher, dass alte Preis-Dateien überschrieben werden
+            try (InputStream in = url.openStream()) {
+                Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            System.out.println("AllPricesToday.json erfolgreich aktualisiert.");
+        } catch (Exception e) {
+            System.err.println("Fehler beim Herunterladen der Preisdaten: " + e.getMessage());
         }
     }
 }

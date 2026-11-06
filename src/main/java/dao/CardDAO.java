@@ -71,4 +71,26 @@ public class CardDAO {
 
         return uuidToCardsNrMap;
     }
+
+    public Map<String, Integer> getAllCardUuidsToNr() {
+        Map<String, Integer> uuidToCardsNrMap = new HashMap<>();
+        String sql = "SELECT uuid, cards_nr FROM cards";
+
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                String uuid = rs.getString("uuid");
+                int cardsNr = rs.getInt("cards_nr");
+                uuidToCardsNrMap.put(uuid, cardsNr);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Laden der Karten-UUIDs aus der DB: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return uuidToCardsNrMap;
+    }
 }

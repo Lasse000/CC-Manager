@@ -14,6 +14,7 @@ import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class JSONParser {
 
@@ -151,13 +152,6 @@ public class JSONParser {
         return card;
     }
 
-    public PriceObjectModel jsonArrayToPriceObjectModel(JSONObject jo, String cardCode){ //cardCode ist der FK?
-        PriceObjectModel priceObjectModel = new PriceObjectModel();
-
-
-        return priceObjectModel;
-    }
-
     private List<String> parseStringList(JSONObject jo, String key) {
         if (jo.has(key) && !jo.isNull(key)) {
             JSONArray array = jo.getJSONArray(key);
@@ -168,6 +162,64 @@ public class JSONParser {
             return list;
         }
         return null;
+    }
+
+    public List<PriceObjectModel> parseDailyPrices(JSONObject rootJson, Map<String, Integer> uuidToCardsNrMap) {
+        List<PriceObjectModel> priceList = new ArrayList<>();
+
+        if (!rootJson.has("data")) {
+            return priceList;
+        }
+
+        JSONObject dataObj = rootJson.getJSONObject("data");
+
+        for (String uuid : dataObj.keySet()) {
+            Integer cardsNr = uuidToCardsNrMap.get(uuid);
+            if (cardsNr == null) {
+                continue; // Karte existiert nicht in unserer DB
+            }
+
+            JSONObject cardPrices = dataObj.getJSONObject(uuid);
+
+            if (!cardPrices.has("paper")) continue;
+            JSONObject paperObj = cardPrices.getJSONObject("paper");
+
+            for (String provider : paperObj.keySet()) {
+                JSONObject providerObj = paperObj.getJSONObject(provider);
+                String currency = providerObj.optString("currency", "EUR");
+
+                if (!providerObj.has("retail")) continue;
+                JSONObject retailObj = providerObj.getJSONObject("retail");
+
+                for (String finish : retailObj.keySet()) {
+                    JSONObject finishObj = retailObj.getJSONObject(finish);
+
+                    for (String dateStr : finishObj.keySet()) {
+                        double priceInUnits = finishObj.getDouble(dateStr);
+
+                        int amountInCents = (int) Math.round(priceInUnits * 100);
+
+                        PriceObjectModel priceObj = new PriceObjectModel();
+                        priceObj.setCards_nr(cardsNr);
+                        priceObj.setSource(provider);
+                        priceObj.setCurrency(currency);
+                        priceObj.setFinish(finish);
+                        priceObj.setPrice_type("retail");
+                        priceObj.setAmount(amountInCents);
+
+                        try {
+                            priceObj.setPriceDate(java.sql.Date.valueOf(dateStr));
+                        } catch (IllegalArgumentException e) {
+                            priceObj.setPriceDate(new java.sql.Date(System.currentTimeMillis()));
+                        }
+
+                        priceList.add(priceObj);
+                    }
+                }
+            }
+        }
+
+        return priceList;
     }
 
     public List<SetObject> getSetObjects() {
